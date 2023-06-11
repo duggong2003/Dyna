@@ -1,0 +1,128 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+// Structure to represent a robot
+struct Robot
+{
+    char name[50];
+    int x;
+    int y;
+};
+
+// Function to display the menu
+int displayMenu()
+{
+    int choice;
+    printf("\033[0;35m");
+    printf("***Welcome to B-bot Menu***\n\n");
+    printf("\033[0;36m");
+    printf("[1] Origin\n");
+    printf("[2] Location\n");
+    printf("[3] Move\n");
+    printf("[0] Exit\n");
+    printf("\nInput your choice: ");
+    scanf("%d", &choice);
+
+    return choice;
+}
+
+// Function to create a new robot
+struct Robot createRobot(const char *name, int x, int y)
+{
+    struct Robot robot;
+    strcpy(robot.name, name);
+    robot.x = x;
+    robot.y = y;
+    return robot;
+}
+
+// Function to display robot information
+void displayRobot(const struct Robot *robot)
+{
+    printf("Name: %s\n", robot->name);
+    printf("Current Position: %d, %d\n", robot->x, robot->y);
+}
+
+// Function to move the robot based on the given direction
+void moveRobot(struct Robot *robot, const char *direction)
+{
+    if (strcmp(direction, "north") == 0)
+        robot->y++;
+    else if (strcmp(direction, "south") == 0)
+        robot->y--;
+    else if (strcmp(direction, "east") == 0)
+        robot->x++;
+    else if (strcmp(direction, "west") == 0)
+        robot->x--;
+    else
+        printf("Invalid direction.\n");
+}
+
+// Function to save robot information to a CSV file
+void saveRobotToFile(const struct Robot *robot, FILE *file)
+{
+    fprintf(file, "%s,%d,%d\n", robot->name, robot->x, robot->y);
+}
+
+// Function to load robot information from a CSV file
+struct Robot loadRobotFromFile(FILE *file)
+{
+    struct Robot robot;
+    fscanf(file, "%[^,],%d,%d\n", robot.name, &robot.x, &robot.y);
+    return robot;
+}
+
+int main()
+{
+    struct Robot robot1 = createRobot("Robot A", 0,0);
+    struct Robot robot2 = createRobot("Robot B",0,0);
+
+    int choice;
+    do
+    {
+        choice = displayMenu();
+
+        switch (choice)
+        {
+        case 1:
+            printf("\nInitial Robot 1:\n");
+            displayRobot(&robot1);
+            printf("\nInitial Robot 2:\n");
+            displayRobot(&robot2);
+            break;
+        case 2:
+            printf("\nUpdated Robot 1:\n");
+            displayRobot(&robot1);
+            printf("\nUpdated Robot 2:\n");
+            displayRobot(&robot2);
+            break;
+        case 3:
+            moveRobot(&robot1, "east");
+            moveRobot(&robot1, "north");
+            moveRobot(&robot2, "west");
+            moveRobot(&robot2, "south");
+            printf("\nMoved Robot 1:\n");
+            displayRobot(&robot1);
+            printf("\nMoved Robot 2:\n");
+            displayRobot(&robot2);
+            break;
+        case 0:
+            printf("Exiting program.\n");
+            break;
+        default:
+            printf("Invalid choice. Please try again.\n");
+        }
+
+        printf("\n");
+    } while (choice != 0);
+
+    // Save robot information to a CSV file
+    FILE *file = fopen("robots.csv", "w");
+    if (file == NULL)
+    {
+        printf("Unable to open file\n");
+        fclose(file);
+    }
+    return 0;
+}
